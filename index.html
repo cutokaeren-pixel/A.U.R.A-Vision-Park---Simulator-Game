@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mô hình bãi đỗ xe thông minh | Bách Khoa TP.HCM</title>
+<meta name="description" content="Sản phẩm kỹ thuật của sinh viên: Mô hình bãi đỗ xe thông minh.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<!--
+=====================================================================
+  HƯỚNG DẪN NHANH
+  1. Tạo thư mục "images" và "videos" cạnh file index.html này.
+  2. Thay tên file ảnh trong các thẻ <img src="images/..."> bằng ảnh của nhóm.
+     (Nếu chưa có ảnh, trang sẽ hiện khung xám có chữ gợi ý.)
+  3. Tìm các dòng có chú thích  "<!-- SỬA: ... -->"  để thay thông tin của nhóm.
+  4. Video: đặt file mp4 vào thư mục videos/ hoặc dán link YouTube (xem tab Hình ảnh & Video).
+=====================================================================
+-->
+
+<style>
+:root{
+  --bg:#04060b;
+  --bg-2:#080d17;
+  --panel:#0b1220;
+  --panel-2:#0f1a2e;
+  --blue:#1f6fe0;
+  --blue-2:#4aa3ff;
+  --blue-3:#9fd0ff;
+  --text:#e8eefc;
+  --muted:#8a99b5;
+  --line:rgba(74,163,255,.16);
+  --radius:16px;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  --sans:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--sans);background:var(--bg);color:var(--text);
+  line-height:1.65;min-height:100vh;overflow-x:hidden;
+}
+#rain{position:fixed;inset:0;z-index:0;pointer-events:none}
+body::before{ /* quầng sáng xanh nền */
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(900px 500px at 15% -10%,rgba(31,111,224,.22),transparent 60%),
+    radial-gradient(700px 500px at 100% 30%,rgba(74,163,255,.10),transparent 60%);
+}
+a{color:var(--blue-2);text-decoration:none}
+
+/* ---------- HEADER / NAV ---------- */
+header{
+  position:sticky;top:0;z-index:50;
+  background:rgba(4,6,11,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.header-in{max-width:1200px;margin:auto;padding:12px 24px;display:flex;align-items:center;gap:24px}
+.brand{display:flex;align-items:center;gap:12px;flex-shrink:0;cursor:pointer}
+.brand .logo{width:40px;height:40px;border-radius:10px;background:var(--panel-2);border:1px solid var(--line);overflow:hidden;display:grid;place-items:center}
+.brand .logo img{width:100%;height:100%;object-fit:contain}
+.brand .logo span{font-family:var(--mono);font-size:11px;color:var(--blue-2)}
+.brand small{display:block;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.brand b{font-size:14px;font-weight:700;letter-spacing:.02em}
+nav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;margin-left:auto}
+nav::-webkit-scrollbar{display:none}
+nav button{
+  background:none;border:0;color:var(--muted);font:500 13.5px var(--sans);
+  padding:9px 14px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:.2s;
+}
+nav button:hover{color:var(--text);background:rgba(74,163,255,.08)}
+nav button.active{color:#fff;background:linear-gradient(135deg,var(--blue),#1553b3);box-shadow:0 4px 18px rgba(31,111,224,.35)}
+
+/* ---------- LAYOUT ---------- */
+main{position:relative;z-index:1;max-width:1200px;margin:auto;padding:48px 24px 80px}
+.tab{display:none;animation:fade .55s ease}
+.tab.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.eyebrow{font:600 12px var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--blue-2);margin-bottom:12px}
+h1{font-size:clamp(34px,6vw,64px);line-height:1.08;font-weight:800;letter-spacing:-.02em}
+h2.title{font-size:clamp(26px,4vw,38px);font-weight:800;letter-spacing:-.01em;margin-bottom:10px}
+.lead{color:var(--muted);font-size:17px;max-width:720px}
+.grad{background:linear-gradient(90deg,var(--blue-2),#7cc0ff 50%,var(--blue));-webkit-background-clip:text;background-clip:text;color:transparent}
+.section-head{margin-bottom:36px}
+.card{background:linear-gradient(180deg,var(--panel),var(--bg-2));border:1px solid var(--line);border-radius:var(--radius);padding:24px;transition:.25s}
+.card:hover{border-color:rgba(74,163,255,.4);transform:translateY(-3px)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:999px;font:600 14px var(--sans);border:1px solid var(--line);color:var(--text);background:transparent;cursor:pointer;transition:.2s}
+.btn.primary{background:linear-gradient(135deg,var(--blue),#1553b3);border-color:transparent;box-shadow:0 8px 24px rgba(31,111,224,.35)}
+.btn:hover{transform:translateY(-2px);border-color:var(--blue-2)}
+
+/* ---------- HOME ---------- */
+.hero{padding:40px 0 20px;display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
+.hero .lead{margin:22px 0 32px}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+.hero-visual{
+  aspect-ratio:1/1;border-radius:24px;border:1px solid var(--line);
+  background:radial-gradient(circle at 50% 40%,rgba(31,111,224,.25),transparent 65%),var(--panel);
+  display:grid;place-items:center;overflow:hidden;position:relative
+}
+.hero-visual .ph{position:absolute;inset:0;border:0;border-radius:0}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:56px 0}
+.stat{text-align:center;padding:22px 12px}
+.stat b{display:block;font:700 34px var(--mono);color:var(--blue-2)}
+.stat span{font-size:13px;color:var(--muted)}
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.features .card .ico{width:44px;height:44px;border-radius:12px;background:rgba(31,111,224,.15);border:1px solid var(--line);display:grid;place-items:center;margin-bottom:16px;font-size:20px}
+.features h3{font-size:17px;margin-bottom:6px}
+.features p{font-size:14.5px;color:var(--muted)}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:56px}
+.about-grid h3{margin-bottom:10px;font-size:19px}
+.about-grid p,.about-grid li{color:var(--muted);font-size:15px}
+.about-grid ul{padding-left:18px}
+
+/* ---------- PLACEHOLDER ẢNH ---------- */
+.ph{position:relative;border-radius:14px;overflow:hidden;background:var(--panel-2);border:1px dashed rgba(74,163,255,.3);aspect-ratio:4/3}
+.ph img{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in;transition:transform .5s}
+.ph:hover img{transform:scale(1.04)}
+.ph::after{
+  content:attr(data-label);position:absolute;inset:0;display:grid;place-items:center;text-align:center;
+  padding:14px;font:500 12.5px var(--mono);color:var(--muted);z-index:0;
+}
+.ph img{position:relative;z-index:1}
+.ph.loaded{border-style:solid}
+.ph.loaded::after{display:none}
+.ph.missing img{display:none}
+.ph.square{aspect-ratio:1/1}
+.ph.wide{aspect-ratio:16/9}
+
+/* ---------- TIMELINE ---------- */
+.timeline{position:relative;max-width:860px;margin:auto;padding-left:32px}
+.timeline::before{content:"";position:absolute;left:8px;top:6px;bottom:6px;width:2px;background:linear-gradient(var(--blue-2),rgba(74,163,255,.05))}
+.t-item{position:relative;margin-bottom:26px}
+.t-item::before{content:"";position:absolute;left:-31px;top:24px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:3px solid var(--blue-2);box-shadow:0 0 0 5px rgba(74,163,255,.12)}
+.t-date{font:600 12px var(--mono);color:var(--blue-2);letter-spacing:.1em;margin-bottom:6px}
+.t-item h3{font-size:18px;margin-bottom:6px}
+.t-item p{color:var(--muted);font-size:14.8px}
+.tag{display:inline-block;margin:10px 6px 0 0;padding:3px 10px;border-radius:999px;font:500 11.5px var(--mono);color:var(--blue-3);background:rgba(31,111,224,.14);border:1px solid var(--line)}
+
+/* ---------- MEDIA ---------- */
+.subtabs{display:flex;gap:8px;margin-bottom:26px;flex-wrap:wrap}
+.subtabs button{padding:9px 18px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--muted);font:500 13.5px var(--sans);cursor:pointer;transition:.2s}
+.subtabs button.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.subpane{display:none}.subpane.active{display:block;animation:fade .45s}
+.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.fig figcaption{font-size:13.5px;color:var(--muted);margin-top:10px}
+.video-box{max-width:900px;margin:0 auto 22px}
+.video-box video,.video-box iframe{width:100%;aspect-ratio:16/9;border-radius:16px;border:1px solid var(--line);background:#000;display:block}
+.video-note{text-align:center;color:var(--muted);font-size:14px}
+
+/* ---------- SPECS ---------- */
+.spec-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:34px}
+.spec-cards .card{padding:20px}
+.spec-cards small{font:500 11px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.12em}
+.spec-cards b{display:block;font:700 22px var(--mono);color:var(--blue-2);margin-top:4px}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--panel)}
+table{width:100%;border-collapse:collapse;min-width:720px}
+th,td{padding:15px 18px;text-align:left;font-size:14.5px;border-bottom:1px solid var(--line)}
+th{font:600 12px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--blue-2);background:var(--panel-2)}
+tr:last-child td{border-bottom:0}
+tbody tr:hover{background:rgba(74,163,255,.05)}
+td:first-child{color:var(--muted);font-family:var(--mono);width:56px}
+td b{font-weight:600}
+td span{color:var(--muted)}
+.sub-title{margin:44px 0 18px;font-size:20px}
+.diagram{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;align-items:center;text-align:center}
+.diagram div{padding:16px 8px;border:1px solid var(--line);border-radius:12px;background:var(--panel);font-size:13.5px}
+.diagram div.core{background:linear-gradient(135deg,var(--blue),#1553b3);border-color:transparent;font-weight:700}
+
+/* ---------- PROCESS ---------- */
+.process-grid{columns:3;column-gap:18px}
+.process-grid .fig{break-inside:avoid;margin-bottom:18px}
+.process-grid .ph{aspect-ratio:auto;min-height:200px}
+.process-grid .ph img{height:auto}
+
+/* ---------- GAME ---------- */
+.game-wrap{display:grid;grid-template-columns:1fr 300px;gap:22px}
+.game-board{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:24px;position:relative;overflow:hidden}
+.hud{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.hud div{padding:8px 14px;border-radius:10px;background:var(--panel-2);border:1px solid var(--line);font:600 13px var(--mono)}
+.hud b{color:var(--blue-2)}
+.gate{display:flex;align-items:center;gap:14px;margin-bottom:18px;padding:14px;border:1px dashed var(--line);border-radius:12px;min-height:84px}
+.gate-label{font:500 11px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.1em;width:70px;flex-shrink:0}
+.queue{display:flex;gap:10px;flex-wrap:wrap;flex:1}
+.car{position:relative;width:62px;height:40px;border-radius:9px;background:var(--blue);display:grid;place-items:center;font-size:20px;box-shadow:0 4px 12px rgba(31,111,224,.4);cursor:pointer;border:2px solid transparent;transition:.2s}
+.car.sel{border-color:#fff;transform:translateY(-4px)}
+.car .pat{position:absolute;left:0;bottom:-7px;height:4px;border-radius:2px;background:#3ddc84;transition:width .2s linear}
+.lcd{margin-left:auto;padding:8px 14px;border-radius:8px;background:#021326;border:1px solid var(--blue);font:600 13px var(--mono);color:#6ed0ff;text-shadow:0 0 8px rgba(110,208,255,.7)}
+.lot{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.slot{aspect-ratio:3/4;border-radius:12px;border:2px dashed rgba(74,163,255,.35);background:var(--bg-2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:.2s;position:relative}
+.slot:hover{border-color:var(--blue-2);background:rgba(31,111,224,.08)}
+.slot .led{width:12px;height:12px;border-radius:50%;background:#3ddc84;box-shadow:0 0 12px #3ddc84;position:absolute;top:10px;right:10px;transition:.2s}
+.slot.busy .led{background:#ff5470;box-shadow:0 0 12px #ff5470}
+.slot.busy{border-style:solid;border-color:rgba(255,84,112,.4);cursor:not-allowed}
+.slot .no{font:600 12px var(--mono);color:var(--muted);position:absolute;top:10px;left:12px}
+.slot .vehicle{font-size:30px}
+.slot.shake{animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.overlay{position:absolute;inset:0;background:rgba(4,6,11,.88);backdrop-filter:blur(4px);display:grid;place-items:center;text-align:center;padding:24px;z-index:5}
+.overlay.hide{display:none}
+.overlay h3{font-size:26px;margin-bottom:8px}
+.overlay p{color:var(--muted);margin-bottom:20px;max-width:380px}
+.how h3{margin-bottom:12px;font-size:17px}
+.how ol{padding-left:18px;color:var(--muted);font-size:14px}
+.how li{margin-bottom:8px}
+.how .note{margin-top:16px;padding:12px;border-radius:10px;background:rgba(31,111,224,.1);border:1px solid var(--line);font-size:13px;color:var(--blue-3)}
+.msg{min-height:22px;margin-top:16px;font:500 13px var(--mono);color:var(--blue-3)}
+
+/* ---------- TEAM ---------- */
+.org{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:44px}
+.org .card{display:flex;gap:18px;align-items:center}
+.org .ph{width:92px;flex-shrink:0;border-radius:50%;aspect-ratio:1/1}
+.org h3{font-size:17px}
+.org p{color:var(--muted);font-size:14px}
+.team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.member{text-align:center}
+.member .ph{width:128px;margin:0 auto 16px;border-radius:50%;aspect-ratio:1/1}
+.member h3{font-size:17px}
+.member .role{font:500 12px var(--mono);color:var(--blue-2);margin:2px 0 10px;display:block}
+.member p{color:var(--muted);font-size:14px}
+.member .id{font:400 12px var(--mono);color:var(--muted)}
+
+/* ---------- LIGHTBOX ---------- */
+#lightbox{position:fixed;inset:0;z-index:200;background:rgba(2,4,8,.94);display:none;place-items:center;padding:30px;cursor:zoom-out}
+#lightbox.on{display:grid}
+#lightbox img{max-width:100%;max-height:100%;border-radius:12px}
+
+footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:28px 24px;text-align:center;color:var(--muted);font-size:13px}
+footer b{color:var(--text)}
+
+/* ---------- RESPONSIVE ---------- */
+@media(max-width:980px){
+  .hero{grid-template-columns:1fr}
+  .hero-visual{max-width:420px}
+  .features,.gallery,.team-grid{grid-template-columns:repeat(2,1fr)}
+  .spec-cards{grid-template-columns:repeat(2,1fr)}
+  .game-wrap{grid-template-columns:1fr}
+  .process-grid{columns:2}
+}
+@media(max-width:640px){
+  .header-in{flex-direction:column;align-items:stretch;gap:10px;padding:10px 14px}
+  .brand{justify-content:center}
+  nav{margin:0}
+  main{padding:32px 16px 60px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .features,.gallery,.team-grid,.about-grid,.org{grid-template-columns:1fr}
+  .process-grid{columns:1}
+  .lot{grid-template-columns:repeat(2,1fr)}
+  .diagram{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<canvas id="rain"></canvas>
+
+<header>
+  <div class="header-in">
+    <div class="brand" data-go="home">
+      <div class="logo">
+        <img src="images/logo-bk.png" alt="" onerror="this.remove()">
+        <span>BK</span>
+      </div>
+      <div>
+        <small>ĐH Bách Khoa – ĐHQG-HCM</small>
+        <b>SMART PARKING</b>
+      </div>
+    </div>
+    <nav id="nav">
+      <button data-tab="home" class="active">Trang chủ</button>
+      <button data-tab="timeline">Timeline</button>
+      <button data-tab="media">Hình ảnh &amp; Video</button>
+      <button data-tab="specs">Cấu kiện &amp; Thông số</button>
+      <button data-tab="process">Quá trình làm việc</button>
+      <button data-tab="game">Mini game</button>
+      <button data-tab="team">Thành viên</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<!-- =================== TRANG CHỦ =================== -->
+<section class="tab active" id="home">
+  <div class="hero">
+    <div>
+      <div class="eyebrow">// Sản phẩm kỹ thuật sinh viên</div>
+      <h1>Mô hình <span class="grad">bãi đỗ xe thông minh</span></h1>
+      <p class="lead">
+        <!-- SỬA: mô tả ngắn về sản phẩm -->
+        Hệ thống mô phỏng bãi đỗ xe tự động: nhận diện xe vào/ra, theo dõi từng vị trí đỗ bằng cảm biến, hiển thị số chỗ trống theo thời gian thực và điều khiển barie tự động. Sản phẩm do sinh viên Trường Đại học Bách Khoa – ĐHQG-HCM thực hiện.
+      </p>
+      <div class="hero-actions">
+        <button class="btn primary" data-go="media">Xem sản phẩm →</button>
+        <button class="btn" data-go="game">Chơi mini game</button>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="ph square" data-label="Ảnh sản phẩm chính&#10;images/hero.jpg">
+        <img src="images/hero.jpg" alt="Mô hình bãi đỗ xe thông minh">
+      </div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <!-- SỬA: các con số thống kê -->
+    <div class="card stat"><b>08</b><span>Vị trí đỗ xe</span></div>
+    <div class="card stat"><b>01</b><span>Barie tự động</span></div>
+    <div class="card stat"><b>&lt;1s</b><span>Thời gian phản hồi</span></div>
+    <div class="card stat"><b>06</b><span>Thành viên</span></div>
+  </div>
+
+  <div class="section-head">
+    <div class="eyebrow">// Tính năng nổi bật</div>
+    <h2 class="title">Hệ thống hoạt động như thế nào?</h2>
+  </div>
+  <div class="features">
+    <div class="card"><div class="ico">📡</div><h3>Cảm biến thông minh</h3><p>Mỗi ô đỗ được gắn cảm biến phát hiện xe, cập nhật trạng thái trống/đã đỗ ngay lập tức.</p></div>
+    <div class="card"><div class="ico">🚧</div><h3>Barie tự động</h3><p>Barie mở khi có xe ở cổng và còn chỗ trống, tự đóng sau khi xe đi qua.</p></div>
+    <div class="card"><div class="ico">📟</div><h3>Hiển thị chỗ trống</h3><p>Màn hình LCD tại cổng báo số chỗ còn trống; đèn LED xanh/đỏ cho từng vị trí.</p></div>
+  </div>
+
+  <div class="about-grid">
+    <div class="card">
+      <h3>Mục tiêu đề tài</h3>
+      <!-- SỬA -->
+      <ul>
+        <li>Giải quyết bài toán tìm chỗ đỗ xe tại đô thị đông đúc.</li>
+        <li>Ứng dụng kiến thức vi điều khiển, cảm biến và lập trình nhúng.</li>
+        <li>Xây dựng mô hình trực quan để trình diễn nguyên lý hoạt động.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Phạm vi sản phẩm</h3>
+      <p><!-- SỬA -->Đây là mô hình thu nhỏ phục vụ học tập và trình diễn. Trang web này chỉ mang tính giới thiệu và không được cập nhật thêm sau khi hoàn thành đồ án.</p>
+    </div>
+  </div>
+</section>
+
+<!-- =================== TIMELINE =================== -->
+<section class="tab" id="timeline">
+  <div class="section-head">
+    <div class="eyebrow">// Timeline</div>
+    <h2 class="title">Hành trình thực hiện</h2>
+    <p class="lead">Các mốc chính của nhóm từ lúc lên ý tưởng đến khi hoàn thiện sản phẩm.</p>
+  </div>
+  <div class="timeline">
+    <!-- SỬA: thay ngày tháng và nội dung theo thực tế. Copy khối .t-item để thêm mốc -->
+    <div class="t-item card">
+      <div class="t-date">TUẦN 1–2 · 09/2026</div>
+      <h3>Hình thành ý tưởng &amp; khảo sát</h3>
+      <p>Họp nhóm, khảo sát các mô hình bãi đỗ xe hiện có, xác định yêu cầu và phạm vi đề tài.</p>
+      <span class="tag">Brainstorm</span><span class="tag">Khảo sát</span>
+    </div>
+    <div class="t-item card">
+      <div class="t-date">TUẦN 3–4 · 09/2026</div>
+      <h3>Thiết kế hệ thống</h3>
+      <p>Thiết kế sơ đồ khối, sơ đồ nguyên lý, chọn vi điều khiển, cảm biến và các linh kiện.</p>
+      <span class="tag">Sơ đồ khối</span><span class="tag">Chọn linh kiện</span>
+    </div>
+    <div class="t-item card">
+      <div class="t-date">TUẦN 5–6 · 10/2026</div>
+      <h3>Mua sắm &amp; chế tạo mô hình cơ khí</h3>
+      <p>Đặt mua linh kiện, thiết kế và gia công khung mô hình, bố trí vị trí đỗ xe.</p>
+      <span class="tag">Cơ khí</span><span class="tag">Gia công</span>
+    </div>
+    <div class="t-item card">
+      <div class="t-date">TUẦN 7–9 · 10/2026</div>
+      <h3>Lập trình &amp; lắp ráp mạch</h3>
+      <p>Viết chương trình điều khiển, đấu nối cảm biến, barie, màn hình LCD và đèn báo.</p>
+      <span class="tag">Lập trình</span><span class="tag">Mạch điện</span>
+    </div>
+    <div class="t-item card">
+      <div class="t-date">TUẦN 10–11 · 11/2026</div>
+      <h3>Kiểm thử &amp; hiệu chỉnh</h3>
+      <p>Chạy thử nhiều kịch bản xe vào/ra, sửa lỗi và tối ưu độ ổn định của hệ thống.</p>
+      <span class="tag">Test</span><span class="tag">Debug</span>
+    </div>
+    <div class="t-item card">
+      <div class="t-date">TUẦN 12 · 11/2026</div>
+      <h3>Hoàn thiện &amp; báo cáo</h3>
+      <p>Hoàn thiện mô hình, quay video, làm báo cáo và trình bày trước hội đồng.</p>
+      <span class="tag">Báo cáo</span><span class="tag">Demo</span>
+    </div>
+  </div>
+</section>
+
+<!-- =================== HÌNH ẢNH & VIDEO =================== -->
+<section class="tab" id="media">
+  <div class="section-head">
+    <div class="eyebrow">// Thư viện</div>
+    <h2 class="title">Hình ảnh &amp; Video sản phẩm</h2>
+  </div>
+
+  <div class="subtabs" id="mediaTabs">
+    <button class="active" data-sub="real">Hình ảnh thực tế</button>
+    <button data-sub="sim">Hình ảnh mô phỏng</button>
+    <button data-sub="video">Video</button>
+  </div>
+
+  <div class="subpane active" id="sub-real">
+    <div class="gallery">
+      <!-- SỬA: thay tên file ảnh. Copy khối <figure> để thêm ảnh -->
+      <figure class="fig"><div class="ph" data-label="images/real-1.jpg"><img src="images/real-1.jpg" alt=""></div><figcaption>Toàn cảnh mô hình</figcaption></figure>
+      <figure class="fig"><div class="ph" data-label="images/real-2.jpg"><img src="images/real-2.jpg" alt=""></div><figcaption>Khu vực cổng vào – barie</figcaption></figure>
+      <figure class="fig"><div class="ph" data-label="images/real-3.jpg"><img src="images/real-3.jpg" alt=""></div><figcaption>Các ô đỗ xe và cảm biến</figcaption></figure>
+      <figure class="fig"><div class="ph" data-label="images/real-4.jpg"><img src="images/real-4.jpg" alt=""></div><figcaption>Bảng mạch điều khiển</figcaption></figure>
+      <figure class="fig"><div class="ph" data-label="images/real-5.jpg"><img src="images/real-5.jpg" alt=""></div><figcaption>Màn hình LCD hiển thị</figcaption></figure>
+      <figure class="fig"><div class="ph" data-label="images/real-6.jpg"><img src="images/real-6.jpg" alt=""></div><figcaption>Mô hình khi hoạt động</figcaption></figure>
+    </div>
+  </div>
+
+  <div class="subpane" id="sub-sim">
+    <div class="gallery">
+      <figure class="fig"><div class="ph" data-label="images/sim-1.png"><img src="images/sim-1.png" alt=""></div><figcaption>Mô hình 3D tổng thể</figcaption></figure>
+      <figure class="fig"><div class="ph" data-label="images/sim-2.png"><img src="images/sim-2.png" alt=""></div><figcaption>Sơ đồ nguyên lý mạch (mô phỏng)</figcaption></figure>
+      <figure class="fig"><div class="ph" data-label="images/sim-3.png"><img src="images/sim-3.png" alt=""></div><figcaption>Kết quả mô phỏng hoạt động</figcaption></figure>
+    </div>
+  </div>
+
+  <div class="subpane" id="sub-video">
+    <div class="video-box">
+      <!-- CÁCH 1: video mp4 đặt trong thư mục videos/ -->
+      <video controls preload="metadata" poster="images/video-poster.jpg">
+        <source src="videos/demo.mp4" type="video/mp4">
+        Trình duyệt không hỗ trợ video.
+      </video>
+      <!-- CÁCH 2: dùng YouTube – xóa thẻ <video> ở trên và bỏ chú thích dòng dưới, thay VIDEO_ID
+      <iframe src="https://www.youtube.com/embed/VIDEO_ID" allowfullscreen></iframe>
+      -->
+    </div>
+    <p class="video-note">Video demo hoạt động của mô hình (đặt file tại <code>videos/demo.mp4</code>).</p>
+  </div>
+</section>
+
+<!-- =================== CẤU KIỆN & THÔNG SỐ =================== -->
+<section class="tab" id="specs">
+  <div class="section-head">
+    <div class="eyebrow">// Thông số kỹ thuật</div>
+    <h2 class="title">Cấu kiện &amp; thông số chi tiết</h2>
+    <p class="lead">Danh sách linh kiện chính và các thông số của mô hình. <!-- SỬA theo thực tế --></p>
+  </div>
+
+  <div class="spec-cards">
+    <!-- SỬA: các thông số tổng quan -->
+    <div class="card"><small>Kích thước</small><b>60×40×25 cm</b></div>
+    <div class="card"><small>Nguồn cấp</small><b>12V DC</b></div>
+    <div class="card"><small>Số vị trí đỗ</small><b>8 ô</b></div>
+    <div class="card"><small>Vi điều khiển</small><b>ESP32 / Arduino</b></div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Linh kiện</th><th>SL</th><th>Thông số</th><th>Chức năng</th></tr></thead>
+      <tbody>
+        <!-- SỬA: thay bằng danh sách linh kiện thực tế -->
+        <tr><td>01</td><td><b>Vi điều khiển</b></td><td>1</td><td><span>ESP32 DevKit, 240 MHz, WiFi/BT</span></td><td><span>Xử lý trung tâm, điều khiển toàn hệ thống</span></td></tr>
+        <tr><td>02</td><td><b>Cảm biến hồng ngoại</b></td><td>8</td><td><span>Khoảng cách phát hiện 2–30 cm</span></td><td><span>Phát hiện xe tại từng ô đỗ</span></td></tr>
+        <tr><td>03</td><td><b>Cảm biến siêu âm</b></td><td>1</td><td><span>HC-SR04, 2–400 cm</span></td><td><span>Phát hiện xe tại cổng vào</span></td></tr>
+        <tr><td>04</td><td><b>Servo</b></td><td>1</td><td><span>SG90, 5V, 180°</span></td><td><span>Điều khiển đóng/mở barie</span></td></tr>
+        <tr><td>05</td><td><b>Màn hình LCD</b></td><td>1</td><td><span>LCD 16×2 I2C</span></td><td><span>Hiển thị số chỗ trống</span></td></tr>
+        <tr><td>06</td><td><b>LED báo trạng thái</b></td><td>16</td><td><span>LED 5mm xanh / đỏ</span></td><td><span>Báo ô trống / ô đã có xe</span></td></tr>
+        <tr><td>07</td><td><b>Nguồn adapter</b></td><td>1</td><td><span>12V – 2A</span></td><td><span>Cấp nguồn cho toàn mạch</span></td></tr>
+        <tr><td>08</td><td><b>Mô hình cơ khí</b></td><td>1</td><td><span>Mica / MDF, in 3D</span></td><td><span>Khung, nền và các ô đỗ</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub-title">Sơ đồ khối hệ thống</h3>
+  <div class="diagram">
+    <div>Cảm biến ô đỗ</div>
+    <div>→</div>
+    <div class="core">Vi điều khiển</div>
+    <div>→</div>
+    <div>LCD · LED · Servo</div>
+  </div>
+  <div class="ph wide" data-label="Sơ đồ nguyên lý chi tiết&#10;images/schematic.png" style="margin-top:22px"><img src="images/schematic.png" alt="Sơ đồ nguyên lý"></div>
+</section>
+
+<!-- =================== QUÁ TRÌNH LÀM VIỆC =================== -->
+<section class="tab" id="process">
+  <div class="section-head">
+    <div class="eyebrow">// Behind the scenes</div>
+    <h2 class="title">Quá trình làm việc của nhóm</h2>
+    <p class="lead">Những khoảnh khắc họp nhóm, lắp ráp, thử nghiệm và hoàn thiện sản phẩm.</p>
+  </div>
+  <div class="process-grid">
+    <!-- SỬA: thay ảnh và chú thích. Copy khối <figure> để thêm ảnh -->
+    <figure class="fig"><div class="ph" data-label="images/work-1.jpg"><img src="images/work-1.jpg" alt=""></div><figcaption>Họp nhóm lên ý tưởng</figcaption></figure>
+    <figure class="fig"><div class="ph" data-label="images/work-2.jpg"><img src="images/work-2.jpg" alt=""></div><figcaption>Thiết kế sơ đồ mạch</figcaption></figure>
+    <figure class="fig"><div class="ph" data-label="images/work-3.jpg"><img src="images/work-3.jpg" alt=""></div><figcaption>Gia công khung mô hình</figcaption></figure>
+    <figure class="fig"><div class="ph" data-label="images/work-4.jpg"><img src="images/work-4.jpg" alt=""></div><figcaption>Hàn mạch và đấu nối</figcaption></figure>
+    <figure class="fig"><div class="ph" data-label="images/work-5.jpg"><img src="images/work-5.jpg" alt=""></div><figcaption>Lập trình và nạp code</figcaption></figure>
+    <figure class="fig"><div class="ph" data-label="images/work-6.jpg"><img src="images/work-6.jpg" alt=""></div><figcaption>Gặp giảng viên hướng dẫn</figcaption></figure>
+    <figure class="fig"><div class="ph" data-label="images/work-7.jpg"><img src="images/work-7.jpg" alt=""></div><figcaption>Chạy thử và hiệu chỉnh</figcaption></figure>
+    <figure class="fig"><div class="ph" data-label="images/work-8.jpg"><img src="images/work-8.jpg" alt=""></div><figcaption>Cả nhóm bên sản phẩm hoàn thiện</figcaption></figure>
+    <figure class="fig"><div class="ph" data-label="images/work-9.jpg"><img src="images/work-9.jpg" alt=""></div><figcaption>Buổi bảo vệ đồ án</figcaption></figure>
+  </div>
+</section>
+
+<!-- =================== MINI GAME =================== -->
+<section class="tab" id="game">
+  <div class="section-head">
+    <div class="eyebrow">// Mini game</div>
+    <h2 class="title">Điều phối bãi đỗ thông minh</h2>
+    <p class="lead">Trải nghiệm nguyên lý hoạt động của sản phẩm: xe đến cổng, hệ thống báo chỗ trống, bạn chọn ô đỗ phù hợp trước khi xe hết kiên nhẫn!</p>
+  </div>
+
+  <div class="game-wrap">
+    <div class="game-board">
+      <div class="overlay" id="gOverlay">
+        <div>
+          <h3 id="gTitle">Sẵn sàng?</h3>
+          <p id="gDesc">Bạn có 60 giây. Đưa xe vào ô đỗ trống càng nhiều càng tốt. Để xe chờ quá lâu hoặc đỗ nhầm ô sẽ bị trừ điểm.</p>
+          <button class="btn primary" id="gStart">▶ Bắt đầu</button>
+        </div>
+      </div>
+
+      <div class="hud">
+        <div>ĐIỂM: <b id="gScore">0</b></div>
+        <div>THỜI GIAN: <b id="gTime">60</b>s</div>
+        <div>MẤT KIÊN NHẪN: <b id="gLost">0</b>/3</div>
+      </div>
+
+      <div class="gate">
+        <div class="gate-label">🚧 Cổng vào</div>
+        <div class="queue" id="gQueue"></div>
+        <div class="lcd" id="gLcd">CON TRONG: 8/8</div>
+      </div>
+
+      <div class="lot" id="gLot"></div>
+      <div class="msg" id="gMsg">Chọn một xe ở cổng, sau đó bấm vào ô đỗ trống (đèn xanh).</div>
+    </div>
+
+    <div class="card how">
+      <h3>Cách chơi</h3>
+      <ol>
+        <li>Xe xuất hiện ở <b>cổng vào</b>. Thanh xanh dưới xe là độ kiên nhẫn.</li>
+        <li>Bấm chọn một xe, rồi bấm vào <b>ô đỗ có đèn LED xanh</b>.</li>
+        <li>Xe sẽ tự rời đi sau một lúc và trả lại chỗ trống (+điểm).</li>
+        <li>Bấm vào ô đã có xe (đèn đỏ) sẽ bị trừ điểm.</li>
+        <li>Thua nếu 3 xe bỏ đi vì chờ quá lâu.</li>
+      </ol>
+      <div class="note">💡 Trong sản phẩm thật, cảm biến sẽ tự phát hiện ô trống và LCD báo số chỗ còn lại giống như game này.</div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== THÀNH VIÊN =================== -->
+<section class="tab" id="team">
+  <div class="section-head">
+    <div class="eyebrow">// Đội ngũ</div>
+    <h2 class="title">Đơn vị thực hiện &amp; thành viên</h2>
+  </div>
+
+  <div class="org">
+    <div class="card">
+      <div class="ph square" data-label="GVHD"><img src="images/advisor.jpg" alt=""></div>
+      <div>
+        <div class="eyebrow" style="margin:0 0 4px">Giảng viên hướng dẫn</div>
+        <h3><!-- SỬA -->ThS. Nguyễn Văn A</h3>
+        <p><!-- SỬA -->Khoa Điện – Điện tử, Trường ĐH Bách Khoa – ĐHQG-HCM</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ph square" data-label="Logo"><img src="images/unit-logo.png" alt=""></div>
+      <div>
+        <div class="eyebrow" style="margin:0 0 4px">Đơn vị thực hiện</div>
+        <h3><!-- SỬA -->Nhóm … – Lớp …</h3>
+        <p><!-- SỬA -->Khoa …, Trường Đại học Bách Khoa – ĐHQG-HCM · Học kỳ …/2026</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="team-grid">
+    <!-- SỬA: họ tên, MSSV, vai trò, mô tả, ảnh. Copy khối .member để thêm/bớt thành viên -->
+    <div class="card member">
+      <div class="ph square" data-label="Ảnh"><img src="images/member-1.jpg" alt=""></div>
+      <h3>Nguyễn Văn B</h3><span class="role">Nhóm trưởng · Lập trình</span>
+      <p>Phụ trách thiết kế phần mềm và tích hợp hệ thống.</p><div class="id">MSSV: 21xxxxxx</div>
+    </div>
+    <div class="card member">
+      <div class="ph square" data-label="Ảnh"><img src="images/member-2.jpg" alt=""></div>
+      <h3>Trần Thị C</h3><span class="role">Thiết kế mạch</span>
+      <p>Thiết kế sơ đồ nguyên lý, lắp ráp và kiểm thử mạch điện.</p><div class="id">MSSV: 21xxxxxx</div>
+    </div>
+    <div class="card member">
+      <div class="ph square" data-label="Ảnh"><img src="images/member-3.jpg" alt=""></div>
+      <h3>Lê Văn D</h3><span class="role">Cơ khí mô hình</span>
+      <p>Thiết kế và gia công khung, ô đỗ và barie.</p><div class="id">MSSV: 21xxxxxx</div>
+    </div>
+    <div class="card member">
+      <div class="ph square" data-label="Ảnh"><img src="images/member-4.jpg" alt=""></div>
+      <h3>Phạm Thị E</h3><span class="role">Lập trình nhúng</span>
+      <p>Viết firmware điều khiển cảm biến, servo và màn hình.</p><div class="id">MSSV: 21xxxxxx</div>
+    </div>
+    <div class="card member">
+      <div class="ph square" data-label="Ảnh"><img src="images/member-5.jpg" alt=""></div>
+      <h3>Hoàng Văn F</h3><span class="role">Kiểm thử &amp; tài liệu</span>
+      <p>Kiểm thử hệ thống, viết báo cáo và làm video.</p><div class="id">MSSV: 21xxxxxx</div>
+    </div>
+    <div class="card member">
+      <div class="ph square" data-label="Ảnh"><img src="images/member-6.jpg" alt=""></div>
+      <h3>Vũ Thị G</h3><span class="role">Thiết kế &amp; truyền thông</span>
+      <p>Thiết kế poster, trang web giới thiệu và thuyết trình.</p><div class="id">MSSV: 21xxxxxx</div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <p><b>Mô hình bãi đỗ xe thông minh</b> · Sản phẩm sinh viên Trường Đại học Bách Khoa – ĐHQG-HCM</p>
+  <p>© 2026 · Trang web tĩnh, không cập nhật sau khi hoàn thành đồ án.</p>
+</footer>
+
+<div id="lightbox"><img alt=""></div>
+
+<script>
+/* ===== 1. HIỆU ỨNG SỐ NHỊ PHÂN RƠI NHƯ TUYẾT ===== */
+(function(){
+  const c=document.getElementById('rain'),ctx=c.getContext('2d');
+  let W,H,flakes=[];
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function resize(){
+    const dpr=window.devicePixelRatio||1;
+    W=innerWidth;H=innerHeight;
+    c.width=W*dpr;c.height=H*dpr;c.style.width=W+'px';c.style.height=H+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    const n=Math.min(160,Math.floor(W*H/9000));
+    flakes=Array.from({length:n},()=>make(true));
+  }
+  function make(rand){
+    const depth=Math.random();            // xa/gần
+    return{
+      x:Math.random()*W,
+      y:rand?Math.random()*H:-20,
+      v:.25+depth*.75,                    // tốc độ rơi chậm như tuyết
+      s:10+depth*14,                      // cỡ chữ
+      a:.05+depth*.17,                    // độ mờ
+      ch:Math.random()<.5?'0':'1',
+      ph:Math.random()*6.28,
+      sw:.2+Math.random()*.5,
+      t:Math.random()*400
+    };
+  }
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    for(const f of flakes){
+      f.y+=f.v;f.ph+=.012;
+      f.x+=Math.sin(f.ph)*f.sw*.5;
+      if(--f.t<0){f.ch=f.ch==='0'?'1':'0';f.t=200+Math.random()*400}
+      if(f.y>H+20){Object.assign(f,make(false));f.x=Math.random()*W}
+      ctx.font=f.s+'px "JetBrains Mono",monospace';
+      ctx.fillStyle='rgba(74,163,255,'+f.a+')';
+      ctx.fillText(f.ch,f.x,f.y);
+    }
+    if(!reduce)requestAnimationFrame(draw);
+  }
+  addEventListener('resize',resize);
+  resize();draw();
+})();
+
+/* ===== 2. CHUYỂN TAB ===== */
+const tabs=[...document.querySelectorAll('.tab')];
+const navBtns=[...document.querySelectorAll('#nav button')];
+function show(id){
+  if(!document.getElementById(id))id='home';
+  tabs.forEach(t=>t.classList.toggle('active',t.id===id));
+  navBtns.forEach(b=>b.classList.toggle('active',b.dataset.tab===id));
+  history.replaceState(null,'','#'+id);
+  scrollTo({top:0,behavior:'smooth'});
+  const act=document.querySelector('#nav button.active');
+  if(act)act.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'});
+}
+navBtns.forEach(b=>b.addEventListener('click',()=>show(b.dataset.tab)));
+document.querySelectorAll('[data-go]').forEach(el=>el.addEventListener('click',()=>show(el.dataset.go)));
+show(location.hash.slice(1)||'home');
+
+/* ===== 3. TAB CON (MEDIA) ===== */
+document.querySelectorAll('#mediaTabs button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('#mediaTabs button').forEach(x=>x.classList.toggle('active',x===b));
+    document.querySelectorAll('.subpane').forEach(p=>p.classList.toggle('active',p.id==='sub-'+b.dataset.sub));
+  });
+});
+
+/* ===== 4. XỬ LÝ ẢNH (khung chờ nếu chưa có ảnh) + LIGHTBOX ===== */
+document.querySelectorAll('.ph img').forEach(img=>{
+  const box=img.parentElement;
+  const ok=()=>box.classList.add('loaded');
+  const bad=()=>box.classList.add('missing');
+  if(img.complete){img.naturalWidth?ok():bad()}
+  img.addEventListener('load',ok);
+  img.addEventListener('error',bad);
+  img.addEventListener('click',()=>{
+    if(!box.classList.contains('loaded'))return;
+    const lb=document.getElementById('lightbox');
+    lb.querySelector('img').src=img.src;lb.classList.add('on');
+  });
+});
+document.getElementById('lightbox').addEventListener('click',e=>e.currentTarget.classList.remove('on'));
+addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('lightbox').classList.remove('on')});
+
+/* ===== 5. MINI GAME ===== */
+(function(){
+  const N=8, DURATION=60, MAX_LOST=3;
+  const el=id=>document.getElementById(id);
+  const lot=el('gLot'),queueEl=el('gQueue'),lcd=el('gLcd'),msg=el('gMsg'),
+        overlay=el('gOverlay'),scoreEl=el('gScore'),timeEl=el('gTime'),lostEl=el('gLost');
+  const icons=['🚗','🚕','🚙','🚓','🛻'];
+  let slots,queue,sel,score,lost,time,running,timers=[],uid=0;
+
+  function buildLot(){
+    lot.innerHTML='';
+    slots=Array.from({length:N},(_,i)=>{
+      const d=document.createElement('div');d.className='slot';
+      d.innerHTML='<span class="no">P'+(i+1)+'</span><span class="led"></span><span class="vehicle"></span>';
+      d.addEventListener('click',()=>park(i));
+      lot.appendChild(d);
+      return{el:d,car:null};
+    });
+  }
+  function say(t){msg.textContent=t}
+  function updateLcd(){
+    const free=slots.filter(s=>!s.car).length;
+    lcd.textContent=free?('CON TRONG: '+free+'/'+N):'BAI DA DAY!';
+  }
+  function renderQueue(){
+    queueEl.innerHTML='';
+    queue.forEach(c=>{
+      const d=document.createElement('div');
+      d.className='car'+(sel===c.id?' sel':'');
+      d.innerHTML=c.icon+'<span class="pat" style="width:'+Math.max(0,c.pat/c.max*100)+'%;background:'+(c.pat/c.max<.35?'#ff5470':'#3ddc84')+'"></span>';
+      d.addEventListener('click',()=>{sel=c.id;say('Đã chọn xe. Bấm vào ô có đèn xanh để đỗ.');renderQueue()});
+      queueEl.appendChild(d);
+    });
+  }
+  function spawn(){
+    if(!running)return;
+    if(queue.length<4){
+      queue.push({id:++uid,icon:icons[Math.floor(Math.random()*icons.length)],pat:11,max:11});
+      renderQueue();
+    }
+    const delay=Math.max(1300,3000-(DURATION-time)*28);
+    timers.push(setTimeout(spawn,delay));
+  }
+  function park(i){
+    if(!running)return;
+    const s=slots[i];
+    if(s.car){
+      score=Math.max(0,score-5);scoreEl.textContent=score;
+      s.el.classList.remove('shake');void s.el.offsetWidth;s.el.classList.add('shake');
+      say('❌ Ô P'+(i+1)+' đã có xe! −5 điểm.');return;
+    }
+    const car=queue.find(c=>c.id===sel);
+    if(!car){say('Hãy chọn một xe ở cổng trước.');return;}
+    queue=queue.filter(c=>c!==car);sel=null;
+    s.car=car;
+    s.el.classList.add('busy');
+    s.el.querySelector('.vehicle').textContent=car.icon;
+    score+=10;scoreEl.textContent=score;
+    say('✅ Cảm biến P'+(i+1)+' phát hiện xe. +10 điểm.');
+    updateLcd();renderQueue();
+    timers.push(setTimeout(()=>{
+      if(!running)return;
+      s.car=null;s.el.classList.remove('busy');
+      s.el.querySelector('.vehicle').textContent='';
+      score+=5;scoreEl.textContent=score;
+      updateLcd();say('🚗 Xe rời P'+(i+1)+'. +5 điểm.');
+    },4000+Math.random()*5000));
+  }
+  function tick(){
+    if(!running)return;
+    time--;timeEl.textContent=time;
+    queue.forEach(c=>c.pat-=1);
+    const gone=queue.filter(c=>c.pat<=0);
+    if(gone.length){
+      queue=queue.filter(c=>c.pat>0);
+      lost+=gone.length;lostEl.textContent=lost;
+      score=Math.max(0,score-10*gone.length);scoreEl.textContent=score;
+      say('😠 Xe bỏ đi vì chờ quá lâu! −10 điểm.');
+    }
+    renderQueue();
+    if(lost>=MAX_LOST)return end('Thua rồi!','Có quá nhiều xe bỏ đi.');
+    if(time<=0)return end('Hết giờ!','Bạn đã hoàn thành ca trực.');
+    timers.push(setTimeout(tick,1000));
+  }
+  function end(title,desc){
+    running=false;timers.forEach(clearTimeout);timers=[];
+    el('gTitle').textContent=title;
+    el('gDesc').innerHTML=desc+'<br>Điểm của bạn: <b style="color:var(--blue-2);font-size:22px">'+score+'</b>';
+    el('gStart').textContent='↻ Chơi lại';
+    overlay.classList.remove('hide');
+  }
+  function start(){
+    buildLot();
+    queue=[];sel=null;score=0;lost=0;time=DURATION;running=true;
+    scoreEl.textContent=0;lostEl.textContent=0;timeEl.textContent=DURATION;
+    updateLcd();renderQueue();say('Chọn một xe ở cổng, sau đó bấm vào ô đỗ trống (đèn xanh).');
+    overlay.classList.add('hide');
+    timers.push(setTimeout(spawn,300));
+    timers.push(setTimeout(tick,1000));
+  }
+  buildLot();updateLcd();
+  el('gStart').addEventListener('click',start);
+})();
+</script>
+</body>
+</html>
